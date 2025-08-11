@@ -1,0 +1,10 @@
+﻿version: '3.8'
+services:
+  adgm-agent:
+    build: .
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - PYTHONPATH=/app

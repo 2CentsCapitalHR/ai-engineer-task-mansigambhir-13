@@ -1,0 +1,8 @@
+﻿# ADGM Corporate Agent Configuration
+app:
+  name: "ADGM Corporate Agent"
+  version: "1.0.0"
+  debug: false
+  max_file_size_mb: 50
+
+# TODO: Copy the complete config.yaml content from the artifacts

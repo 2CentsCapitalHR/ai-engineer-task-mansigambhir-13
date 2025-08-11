@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-08-10T23:13:22.416197",
+  "scores": {
+    "functional": {
+      "score": 11,
+      "max": 10,
+      "issues": [
+        "test_sample.py is importable"
+      ]
+    },
+    "technical": {
+      "score": 17,
+      "max": 10,
+      "issues": [
+        "Import docx"
+      ]
+    },
+    "submission": {
+      "score": 19,
+      "max": 10,
+      "issues": [
+        "README includes setup",
+        "Example .docx documents"
+      ]
+    },
+    "total": {
+      "score": 47,
+      "max": 30
+    }
+  },
+  "overall_percentage": 156.66666666666666,
+  "tests_passed": 47,
+  "total_tests": 51,
+  "ready_for_submission": true
+}

@@ -12,9 +12,9 @@ from datetime import datetime
 from typing import List
 import base64
 
-# Import main classes
+# Import main classes - FIXED IMPORTS
 try:
-    from main import ADGMCorporateAgent, DocumentIssue, AnalysisResult
+    from main import EnhancedADGMCorporateAgent, DocumentIssue, AnalysisResult
 except ImportError:
     st.error("❌ Unable to import main modules. Please ensure main.py is available.")
     st.stop()
@@ -56,6 +56,7 @@ st.markdown("""
         margin: 0.5rem 0;
         background-color: #f8f9fa;
     }
+    .issue-critical { border-left: 4px solid #dc143c; }
     .issue-high { border-left: 4px solid #dc3545; }
     .issue-medium { border-left: 4px solid #ffc107; }
     .issue-low { border-left: 4px solid #28a745; }
@@ -65,7 +66,7 @@ st.markdown("""
 def initialize_session_state():
     """Initialize Streamlit session state"""
     if 'agent' not in st.session_state:
-        st.session_state.agent = ADGMCorporateAgent()
+        st.session_state.agent = EnhancedADGMCorporateAgent()  # FIXED: Use correct class name
     if 'analysis_results' not in st.session_state:
         st.session_state.analysis_results = None
     if 'uploaded_files' not in st.session_state:
@@ -110,7 +111,12 @@ def display_compliance_score(score: float):
 def display_issue_card(issue: DocumentIssue):
     """Display an issue as a formatted card"""
     severity_class = f"issue-{issue.severity.lower()}"
-    severity_emoji = {"High": "🔴", "Medium": "🟡", "Low": "🟢"}.get(issue.severity, "⚪")
+    severity_emoji = {
+        "Critical": "🚨", 
+        "High": "🔴", 
+        "Medium": "🟡", 
+        "Low": "🟢"
+    }.get(issue.severity, "⚪")
     
     st.markdown(f"""
     <div class="issue-card {severity_class}">
@@ -123,13 +129,19 @@ def display_issue_card(issue: DocumentIssue):
     </div>
     """, unsafe_allow_html=True)
 
+class MockFile:
+    """Mock file object to work with the enhanced agent"""
+    def __init__(self, name, content=None):
+        self.name = name
+        self.content = content
+
 def main():
     """Main Streamlit application"""
     initialize_session_state()
     
     # Header
     st.markdown('<h1 class="main-header">🏛️ ADGM Corporate Agent</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #6c757d;">Abu Dhabi Global Market (ADGM) Compliant Legal Document Review System</p>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #6c757d;">Enhanced Abu Dhabi Global Market (ADGM) Compliant Legal Document Review System</p>', unsafe_allow_html=True)
     
     # Sidebar
     with st.sidebar:
@@ -137,12 +149,13 @@ def main():
         st.markdown("""
         This AI-powered system helps review legal documents for ADGM compliance:
         
-        **Features:**
-        - 🔍 Document analysis & red flag detection
+        **Enhanced Features:**
+        - 🔍 Advanced document analysis & red flag detection
         - ⚖️ ADGM jurisdiction verification  
-        - 📝 Compliance checklist validation
-        - 💬 Inline commenting with suggestions
-        - 📊 Quantitative compliance scoring
+        - 📝 Official template compliance validation
+        - 💬 Professional inline commenting with citations
+        - 📊 Quantitative compliance scoring with risk assessment
+        - 🏛️ Official ADGM regulations integration
         """)
         
         st.header("📚 Supported Documents")
@@ -154,11 +167,16 @@ def main():
         - UBO Declaration Forms
         - Member/Director Registers
         
-        **Other Categories:**
-        - Employment Contracts
-        - Licensing Applications  
-        - Commercial Agreements
-        - Compliance Policies
+        **Employment & HR:**
+        - ADGM Standard Employment Contracts
+        - Employee Handbooks
+        - Workplace Policies
+        
+        **Licensing & Compliance:**
+        - License Applications
+        - Regulatory Filings
+        - Compliance Certificates
+        - Data Protection Policies
         """)
         
         st.header("🎯 Compliance Levels")
@@ -167,6 +185,14 @@ def main():
         - **80-89**: ✅ Good  
         - **60-79**: ⚠️ Moderate
         - **0-59**: ❌ Needs Work
+        """)
+        
+        st.header("🔍 Analysis Capabilities")
+        st.markdown("""
+        - **Critical Issues**: 🚨 Jurisdiction violations
+        - **High Priority**: 🔴 Template non-compliance
+        - **Medium Priority**: 🟡 Incomplete sections
+        - **Low Priority**: 🟢 Enhancement suggestions
         """)
     
     # Main content area
@@ -179,37 +205,37 @@ def main():
             "Select ADGM legal documents (.docx format)",
             type=['docx'],
             accept_multiple_files=True,
-            help="Upload one or more .docx documents for compliance analysis"
+            help="Upload one or more .docx documents for comprehensive ADGM compliance analysis"
         )
         
         if uploaded_files:
             st.success(f"✅ {len(uploaded_files)} file(s) uploaded successfully")
             
-            with st.expander("📄 Uploaded Files"):
+            with st.expander("📄 Uploaded Files Details"):
                 for i, file in enumerate(uploaded_files, 1):
                     st.write(f"{i}. **{file.name}** ({file.size:,} bytes)")
             
             # Analyze button
-            if st.button("🔍 Analyze Documents", type="primary", use_container_width=True):
-                with st.spinner("🔄 Analyzing documents for ADGM compliance..."):
+            if st.button("🔍 Analyze Documents for ADGM Compliance", type="primary", use_container_width=True):
+                with st.spinner("🔄 Performing comprehensive ADGM compliance analysis..."):
                     # Save uploaded files temporarily
                     temp_files = []
-                    for uploaded_file in uploaded_files:
-                        with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp:
-                            tmp.write(uploaded_file.getbuffer())
-                            
-                            # Create mock file object
-                            class MockFile:
-                                def __init__(self, name):
-                                    self.name = name
-                            
-                            temp_files.append(MockFile(tmp.name))
                     
-                    # Perform analysis
                     try:
+                        for uploaded_file in uploaded_files:
+                            with tempfile.NamedTemporaryFile(delete=False, suffix='.docx') as tmp:
+                                tmp.write(uploaded_file.getbuffer())
+                                temp_files.append(MockFile(tmp.name))
+                        
+                        # Perform analysis using the enhanced agent
                         result, status_msg = st.session_state.agent.analyze_documents(temp_files)
-                        st.session_state.analysis_results = result
-                        st.session_state.status_message = status_msg
+                        
+                        if result is not None:
+                            st.session_state.analysis_results = result
+                            st.session_state.status_message = status_msg
+                            st.success("✅ Analysis completed successfully!")
+                        else:
+                            st.error(f"❌ Analysis failed: {status_msg}")
                         
                         # Clean up temp files
                         for temp_file in temp_files:
@@ -222,9 +248,16 @@ def main():
                         
                     except Exception as e:
                         st.error(f"❌ Analysis failed: {str(e)}")
+                        
+                        # Clean up temp files in case of error
+                        for temp_file in temp_files:
+                            try:
+                                os.unlink(temp_file.name)
+                            except:
+                                pass
         
         else:
-            st.info("👆 Please upload .docx documents to begin analysis")
+            st.info("👆 Please upload .docx documents to begin comprehensive ADGM compliance analysis")
     
     with col2:
         st.header("📊 Analysis Results")
@@ -244,6 +277,16 @@ def main():
             with col2c:
                 st.metric("🚩 Issues", f"{len(result.issues_found)}")
             
+            # Risk level indicator
+            risk_colors = {
+                "HIGH RISK": "🔴",
+                "MEDIUM RISK": "🟡", 
+                "LOW RISK": "🟢",
+                "MINIMAL RISK": "🟢"
+            }
+            risk_emoji = risk_colors.get(result.risk_level, "⚪")
+            st.markdown(f"**Risk Assessment:** {risk_emoji} {result.risk_level}")
+            
             # Process information
             st.subheader("🎯 Detected Process")
             process_name = result.process.replace('_', ' ').title()
@@ -262,7 +305,7 @@ def main():
                 # Filter by severity
                 severity_filter = st.selectbox(
                     "Filter by Severity:",
-                    ["All", "High", "Medium", "Low"],
+                    ["All", "Critical", "High", "Medium", "Low"],
                     index=0
                 )
                 
@@ -271,15 +314,32 @@ def main():
                     filtered_issues = [issue for issue in result.issues_found if issue.severity == severity_filter]
                 
                 if filtered_issues:
+                    # Show issue count by severity
+                    severity_counts = {}
+                    for issue in result.issues_found:
+                        severity_counts[issue.severity] = severity_counts.get(issue.severity, 0) + 1
+                    
+                    st.markdown("**Issue Breakdown:**")
+                    for severity, count in severity_counts.items():
+                        emoji_map = {"Critical": "🚨", "High": "🔴", "Medium": "🟡", "Low": "🟢"}
+                        st.markdown(f"{emoji_map.get(severity, '⚪')} {severity}: {count} issues")
+                    
+                    st.markdown("---")
+                    
                     for issue in filtered_issues:
                         display_issue_card(issue)
                 else:
                     st.info(f"No {severity_filter.lower()} severity issues found.")
             else:
                 st.success("🎉 No compliance issues detected!")
+            
+            # Executive summary
+            if hasattr(result, 'executive_summary') and result.executive_summary:
+                with st.expander("📋 Executive Summary"):
+                    st.markdown(result.executive_summary)
         
         else:
-            st.info("👈 Upload and analyze documents to see results here")
+            st.info("👈 Upload and analyze documents to see comprehensive results here")
     
     # Results section
     if st.session_state.analysis_results:
@@ -290,13 +350,19 @@ def main():
         with col3:
             st.subheader("📄 JSON Analysis Report")
             
-            # Convert result to JSON
+            # Convert result to JSON with enhanced formatting
+            result = st.session_state.analysis_results
             result_dict = {
-                'process': st.session_state.analysis_results.process,
-                'documents_uploaded': st.session_state.analysis_results.documents_uploaded,
-                'required_documents': st.session_state.analysis_results.required_documents,
-                'missing_documents': st.session_state.analysis_results.missing_documents,
-                'compliance_score': st.session_state.analysis_results.compliance_score,
+                'metadata': {
+                    'analysis_date': datetime.now().isoformat(),
+                    'system_version': 'Enhanced ADGM Corporate Agent v2.0'
+                },
+                'process': result.process,
+                'documents_uploaded': result.documents_uploaded,
+                'required_documents': result.required_documents,
+                'missing_documents': result.missing_documents,
+                'compliance_score': result.compliance_score,
+                'risk_level': result.risk_level,
                 'issues_found': [
                     {
                         'document': issue.document,
@@ -304,10 +370,14 @@ def main():
                         'issue': issue.issue,
                         'severity': issue.severity,
                         'suggestion': issue.suggestion,
-                        'adgm_reference': issue.adgm_reference
-                    } for issue in st.session_state.analysis_results.issues_found
+                        'adgm_reference': issue.adgm_reference,
+                        'category': getattr(issue, 'category', 'general'),
+                        'confidence': getattr(issue, 'confidence', 1.0)
+                    } for issue in result.issues_found
                 ],
-                'timestamp': datetime.now().isoformat()
+                'recommendations': getattr(result, 'recommendations', []),
+                'executive_summary': getattr(result, 'executive_summary', ''),
+                'timestamp': result.timestamp
             }
             
             json_str = json.dumps(result_dict, indent=2)
@@ -322,52 +392,83 @@ def main():
             )
         
         with col4:
-            st.subheader("📝 Executive Summary")
+            st.subheader("📝 Executive Summary Report")
             
             result = st.session_state.analysis_results
             
-            # Generate executive summary
-            summary = f"""
-# ADGM Compliance Analysis Report
+            # Generate comprehensive executive summary
+            summary = f"""# ADGM Compliance Analysis Report
 
-**Date:** {datetime.now().strftime('%B %d, %Y')}
+**Date:** {datetime.now().strftime('%B %d, %Y at %H:%M')}
 **Process:** {result.process.replace('_', ' ').title()}
+**Risk Level:** {result.risk_level}
 
-## Summary
-- **Documents Analyzed:** {result.documents_uploaded}
+## Executive Summary
+- **Documents Analyzed:** {result.documents_uploaded} of {result.required_documents} required
 - **Compliance Score:** {result.compliance_score:.1f}/100
-- **Issues Found:** {len(result.issues_found)}
+- **Issues Identified:** {len(result.issues_found)} total
 - **Missing Documents:** {len(result.missing_documents)}
 
-## Key Findings
+## Document Status
 """
+            
+            completion_rate = (result.documents_uploaded / result.required_documents * 100) if result.required_documents > 0 else 100
+            summary += f"**Completion Rate:** {completion_rate:.0f}%\n\n"
             
             if result.missing_documents:
-                summary += f"\n### Missing Documents\n"
+                summary += f"### Missing Required Documents\n"
                 for doc in result.missing_documents:
                     summary += f"- {doc}\n"
+                summary += "\n"
             
             if result.issues_found:
-                summary += f"\n### Critical Issues\n"
-                high_issues = [i for i in result.issues_found if i.severity == "High"]
-                for issue in high_issues[:3]:
-                    summary += f"- **{issue.document}:** {issue.issue}\n"
+                # Group issues by severity
+                severity_groups = {}
+                for issue in result.issues_found:
+                    if issue.severity not in severity_groups:
+                        severity_groups[issue.severity] = []
+                    severity_groups[issue.severity].append(issue)
+                
+                summary += f"### Issues by Severity\n"
+                for severity in ["Critical", "High", "Medium", "Low"]:
+                    if severity in severity_groups:
+                        issues = severity_groups[severity]
+                        summary += f"**{severity}:** {len(issues)} issues\n"
+                        for issue in issues[:2]:  # Show first 2 issues
+                            summary += f"  - {issue.document}: {issue.issue}\n"
+                        if len(issues) > 2:
+                            summary += f"  - ... and {len(issues) - 2} more\n"
+                        summary += "\n"
+            
+            # Add recommendations if available
+            if hasattr(result, 'recommendations') and result.recommendations:
+                summary += f"### Key Recommendations\n"
+                for i, rec in enumerate(result.recommendations[:5], 1):
+                    summary += f"{i}. {rec}\n"
+                summary += "\n"
+            
+            summary += f"""### Next Steps
+"""
+            if result.compliance_score >= 85:
+                summary += "✅ **EXCELLENT COMPLIANCE** - Minor review suggested before submission\n"
+            elif result.compliance_score >= 70:
+                summary += "✅ **GOOD COMPLIANCE** - Address identified issues and proceed\n"
+            elif result.compliance_score >= 50:
+                summary += "⚠️ **MODERATE COMPLIANCE** - Significant improvements required\n"
+            else:
+                summary += "❌ **LOW COMPLIANCE** - Major revisions needed before submission\n"
             
             summary += f"""
-## Recommendations
-1. Address all high-severity compliance issues immediately
-2. Complete missing required documents  
-3. Review ADGM regulatory requirements
-4. Consult legal professionals for final validation
+### Official ADGM References
+- ADGM Companies Regulations 2020
+- ADGM Employment Regulations 2019
+- ADGM Data Protection Regulations 2021
+- Official ADGM Templates and Guidance
 
-## Status
+---
+**Disclaimer:** This analysis provides guidance only and does not constitute legal advice. 
+Consult qualified legal professionals for final document validation.
 """
-            if result.compliance_score >= 80:
-                summary += "✅ **GOOD COMPLIANCE** - Minor issues require attention"
-            elif result.compliance_score >= 60:
-                summary += "⚠️ **MODERATE COMPLIANCE** - Several issues need resolution"
-            else:
-                summary += "❌ **LOW COMPLIANCE** - Significant improvements required"
             
             st.markdown(summary)
             
@@ -383,7 +484,8 @@ def main():
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #6c757d; padding: 2rem 0;">
-        <p>🏛️ <strong>ADGM Corporate Agent</strong> - Powered by AI for Legal Document Intelligence</p>
+        <p>🏛️ <strong>Enhanced ADGM Corporate Agent</strong> - AI-Powered Document Intelligence Platform v2.0</p>
+        <p>⚡ Advanced RAG Technology | 📊 Professional Compliance Analysis | 🔍 Official ADGM Integration</p>
         <p>⚖️ This system provides guidance only and does not constitute legal advice</p>
         <p>📚 Always consult qualified legal professionals for final document review</p>
     </div>
